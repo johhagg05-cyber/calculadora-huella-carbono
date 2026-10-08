@@ -1,1 +1,976 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <title>Calculadora de Huella de Carbono</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #eef7ee;
+            color: #263238;
+        }
+
+        .contenedor {
+            max-width: 850px;
+            margin: auto;
+            padding: 25px 15px;
+        }
+
+        .encabezado {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .encabezado h1 {
+            color: #2e7d32;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .encabezado p {
+            color: #546e7a;
+            line-height: 1.5;
+        }
+
+        .tarjeta {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .preguntas {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .pregunta {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .pregunta label {
+            font-weight: bold;
+            line-height: 1.4;
+        }
+
+        select {
+            padding: 12px;
+            border: 1px solid #b0bec5;
+            border-radius: 8px;
+            font-size: 15px;
+            background: white;
+        }
+
+        .botones {
+            margin-top: 25px;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 13px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .calcular {
+            background: #2e7d32;
+            color: white;
+        }
+
+        .calcular:hover {
+            background: #1b5e20;
+        }
+
+        .reiniciar {
+            background: #eceff1;
+            color: #263238;
+        }
+
+        #resultado {
+            display: none;
+        }
+
+        .resultado-centro {
+            text-align: center;
+        }
+
+        .puntaje {
+            font-size: 60px;
+            font-weight: bold;
+            color: #2e7d32;
+            margin: 15px 0;
+        }
+
+        .nivel {
+            font-size: 25px;
+            font-weight: bold;
+        }
+
+        .barra {
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 25px 0;
+        }
+
+        #barraResultado {
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s;
+        }
+
+        .bajo {
+            background: #43a047;
+        }
+
+        .moderado {
+            background: #fbc02d;
+        }
+
+        .alto {
+            background: #fb8c00;
+        }
+
+        .muy-alto {
+            background: #e53935;
+        }
+
+        .analisis {
+            background: #f5f5f5;
+            padding: 18px;
+            border-radius: 10px;
+            line-height: 1.6;
+            margin-top: 20px;
+        }
+
+        .recomendaciones {
+            margin-top: 25px;
+        }
+
+        .recomendaciones h3 {
+            color: #2e7d32;
+        }
+
+        .recomendaciones li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .categorias {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .categoria {
+            background: #f1f8e9;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .categoria strong {
+            display: block;
+            font-size: 22px;
+            color: #2e7d32;
+        }
+
+        .pie {
+            text-align: center;
+            color: #607d8b;
+            font-size: 13px;
+            line-height: 1.5;
+            margin-top: 25px;
+        }
+
+        @media (max-width: 650px) {
+
+            .preguntas {
+                grid-template-columns: 1fr;
+            }
+
+            .categorias {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .encabezado h1 {
+                font-size: 26px;
+            }
+
+            .tarjeta {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="contenedor">
+
+    <div class="encabezado">
+
+        <h1>🌱 Calculadora de Huella de Carbono</h1>
+
+        <p>
+            Responde estas preguntas y descubre cómo tus hábitos
+            cotidianos pueden influir en el ambiente.
+        </p>
+
+    </div>
+
+
+    <div class="tarjeta">
+
+        <h2>🌎 Evalúa tus hábitos</h2>
+
+        <p>
+            Selecciona la opción que más se parezca a tus hábitos.
+        </p>
+
+        <form id="formulario">
+
+            <div class="preguntas">
+
+
+                <div class="pregunta">
+
+                    <label>
+                        1. ¿Cómo te movilizas principalmente?
+                    </label>
+
+                    <select id="movilidad">
+
+                        <option value="1">
+                            Caminar o bicicleta
+                        </option>
+
+                        <option value="2">
+                            Transporte público
+                        </option>
+
+                        <option value="4">
+                            Motocicleta
+                        </option>
+
+                        <option value="5">
+                            Carro compartido
+                        </option>
+
+                        <option value="7">
+                            Carro particular
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="pregunta">
+
+                    <label>
+                        2. ¿Cuánto te movilizas diariamente?
+                    </label>
+
+                    <select id="distancia">
+
+                        <option value="1">
+                            Menos de 5 km
+                        </option>
+
+                        <option value="2">
+                            Entre 5 y 15 km
+                        </option>
+
+                        <option value="4">
+                            Entre 15 y 30 km
+                        </option>
+
+                        <option value="6">
+                            Más de 30 km
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="pregunta">
+
+                    <label>
+                        3. ¿Con qué frecuencia consumes carne de res?
+                    </label>
+
+                    <select id="carne">
+
+                        <option value="1">
+                            Nunca o casi nunca
+                        </option>
+
+                        <option value="2">
+                            Una vez por semana
+                        </option>
+
+                        <option value="4">
+                            2 a 4 veces por semana
+                        </option>
+
+                        <option value="6">
+                            5 o más veces por semana
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="pregunta">
+
+                    <label>
+                        4. ¿Consumes alimentos locales o de temporada?
+                    </label>
+
+                    <select id="local">
+
+                        <option value="1">
+                            Casi siempre
+                        </option>
+
+                        <option value="2">
+                            Frecuentemente
+                        </option>
+
+                        <option value="4">
+                            Algunas veces
+                        </option>
+
+                        <option value="6">
+                            Casi nunca
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="pregunta">
+
+                    <label>
+                        5. ¿Cómo manejas el consumo de energía en casa?
+                    </label>
+
+                    <select id="energia">
+
+                        <option value="1">
+                            Apago y desconecto lo que no uso
+                        </option>
+
+                        <option value="2">
+                            Generalmente lo hago
+                        </option>
+
+                        <option value="4">
+                            Algunas veces
+                        </option>
+
+                        <option value="6">
+                            Casi nunca
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="pregunta">
+
+                    <label>
+                        6. ¿Separas correctamente tus residuos?
+                    </label>
+
+                    <select id="residuos">
+
+                        <option value="1">
+                            Siempre
+                        </option>
+
+                        <option value="2">
+                            Frecuentemente
+                        </option>
+
+                        <option value="4">
+                            Algunas veces
+                        </option>
+
+                        <option value="6">
+                            No
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="pregunta">
+
+                    <label>
+                        7. ¿Compras productos que realmente no necesitas?
+                    </label>
+
+                    <select id="consumo">
+
+                        <option value="1">
+                            Casi nunca
+                        </option>
+
+                        <option value="2">
+                            Ocasionalmente
+                        </option>
+
+                        <option value="4">
+                            Frecuentemente
+                        </option>
+
+                        <option value="6">
+                            Muy frecuentemente
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="pregunta">
+
+                    <label>
+                        8. ¿Cómo consideras tu consumo de agua?
+                    </label>
+
+                    <select id="agua">
+
+                        <option value="1">
+                            Muy responsable
+                        </option>
+
+                        <option value="2">
+                            Responsable
+                        </option>
+
+                        <option value="4">
+                            Alto
+                        </option>
+
+                        <option value="6">
+                            Muy alto
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <div class="botones">
+
+                <button
+                    type="submit"
+                    class="calcular">
+
+                    🌱 Calcular mi huella
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="reiniciar"
+                    id="reiniciar">
+
+                    Reiniciar
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <div class="tarjeta" id="resultado">
+
+        <div class="resultado-centro">
+
+            <h2>Tu resultado</h2>
+
+            <div
+                class="puntaje"
+                id="puntaje">
+
+                0
+
+            </div>
+
+            <div
+                class="nivel"
+                id="nivel">
+
+            </div>
+
+        </div>
+
+
+        <div class="barra">
+
+            <div id="barraResultado"></div>
+
+        </div>
+
+
+        <div class="analisis">
+
+            <strong>📊 Análisis</strong>
+
+            <p id="textoAnalisis"></p>
+
+        </div>
+
+
+        <h3>📌 Tus resultados por categoría</h3>
+
+
+        <div class="categorias">
+
+            <div class="categoria">
+
+                <strong id="resultadoMovilidad">
+                    0
+                </strong>
+
+                Movilidad
+
+            </div>
+
+
+            <div class="categoria">
+
+                <strong id="resultadoAlimentacion">
+                    0
+                </strong>
+
+                Alimentación
+
+            </div>
+
+
+            <div class="categoria">
+
+                <strong id="resultadoEnergia">
+                    0
+                </strong>
+
+                Energía
+
+            </div>
+
+
+            <div class="categoria">
+
+                <strong id="resultadoResiduos">
+                    0
+                </strong>
+
+                Residuos
+
+            </div>
+
+
+            <div class="categoria">
+
+                <strong id="resultadoConsumo">
+                    0
+                </strong>
+
+                Consumo
+
+            </div>
+
+
+            <div class="categoria">
+
+                <strong id="resultadoAgua">
+                    0
+                </strong>
+
+                Agua
+
+            </div>
+
+        </div>
+
+
+        <div class="recomendaciones">
+
+            <h3>
+                🌿 Recomendaciones para reducir tu impacto
+            </h3>
+
+            <ul id="listaRecomendaciones"></ul>
+
+        </div>
+
+    </div>
+
+
+    <div class="pie">
+
+        <p>
+            Esta herramienta tiene un propósito educativo y de
+            sensibilización ambiental. El resultado corresponde a
+            una escala orientativa basada en los hábitos reportados.
+        </p>
+
+        <p>
+            🌱 Promoviendo hábitos sostenibles para un territorio
+            más resiliente.
+        </p>
+
+    </div>
+
+</div>
+
+
+<script>
+
+const formulario = document.getElementById("formulario");
+
+const resultado = document.getElementById("resultado");
+
+const puntaje = document.getElementById("puntaje");
+
+const nivel = document.getElementById("nivel");
+
+const textoAnalisis =
+    document.getElementById("textoAnalisis");
+
+const barraResultado =
+    document.getElementById("barraResultado");
+
+const listaRecomendaciones =
+    document.getElementById("listaRecomendaciones");
+
+
+formulario.addEventListener("submit", function(event) {
+
+    event.preventDefault();
+
+
+    /* OBTENER RESPUESTAS */
+
+    const movilidad =
+        Number(document.getElementById("movilidad").value);
+
+    const distancia =
+        Number(document.getElementById("distancia").value);
+
+    const carne =
+        Number(document.getElementById("carne").value);
+
+    const local =
+        Number(document.getElementById("local").value);
+
+    const energia =
+        Number(document.getElementById("energia").value);
+
+    const residuos =
+        Number(document.getElementById("residuos").value);
+
+    const consumo =
+        Number(document.getElementById("consumo").value);
+
+    const agua =
+        Number(document.getElementById("agua").value);
+
+
+    /* CALCULAR PUNTAJE */
+
+    const total =
+        movilidad +
+        distancia +
+        carne +
+        local +
+        energia +
+        residuos +
+        consumo +
+        agua;
+
+
+    /* MOSTRAR PUNTAJE */
+
+    puntaje.textContent = total;
+
+
+    /* DETERMINAR NIVEL */
+
+    let nombreNivel = "";
+
+    let analisis = "";
+
+    let clase = "";
+
+
+    if (total <= 16) {
+
+        nombreNivel = "🟢 Huella baja";
+
+        analisis =
+            "Tus hábitos presentan una presión ambiental relativamente baja. " +
+            "Esto indica que tienes varias prácticas favorables para el ambiente. " +
+            "El objetivo es mantener estos hábitos y continuar mejorando.";
+
+        clase = "bajo";
+
+    }
+
+    else if (total <= 28) {
+
+        nombreNivel = "🟡 Huella moderada";
+
+        analisis =
+            "Tu resultado se encuentra en un nivel intermedio. " +
+            "Tienes algunos hábitos positivos, pero también existen oportunidades " +
+            "para reducir tu impacto, especialmente en las categorías con mayor puntaje.";
+
+        clase = "moderado";
+
+    }
+
+    else if (total <= 38) {
+
+        nombreNivel = "🟠 Huella alta";
+
+        analisis =
+            "Tus hábitos presentan una presión ambiental relativamente alta. " +
+            "No necesitas cambiar todo al mismo tiempo. Empieza por las categorías " +
+            "con mayor puntaje y realiza cambios sencillos y constantes.";
+
+        clase = "alto";
+
+    }
+
+    else {
+
+        nombreNivel = "🔴 Huella muy alta";
+
+        analisis =
+            "Tu resultado muestra una presión ambiental elevada dentro de esta escala. " +
+            "Existen varias oportunidades de mejora. Prioriza cambios en movilidad, " +
+            "alimentación, energía, consumo y manejo de residuos.";
+
+        clase = "muy-alto";
+
+    }
+
+
+    nivel.textContent = nombreNivel;
+
+    textoAnalisis.textContent = analisis;
+
+
+    /* BARRA */
+
+    const porcentaje =
+        (total / 48) * 100;
+
+    barraResultado.style.width =
+        porcentaje + "%";
+
+    barraResultado.className =
+        clase;
+
+
+    /* RESULTADOS POR CATEGORÍA */
+
+    document.getElementById(
+        "resultadoMovilidad"
+    ).textContent =
+        movilidad + distancia;
+
+
+    document.getElementById(
+        "resultadoAlimentacion"
+    ).textContent =
+        carne + local;
+
+
+    document.getElementById(
+        "resultadoEnergia"
+    ).textContent =
+        energia;
+
+
+    document.getElementById(
+        "resultadoResiduos"
+    ).textContent =
+        residuos;
+
+
+    document.getElementById(
+        "resultadoConsumo"
+    ).textContent =
+        consumo;
+
+
+    document.getElementById(
+        "resultadoAgua"
+    ).textContent =
+        agua;
+
+
+    /* RECOMENDACIONES */
+
+    const recomendaciones = [];
+
+
+    if (movilidad + distancia >= 8) {
+
+        recomendaciones.push(
+            "Utiliza caminar, bicicleta o transporte público cuando sea posible. También puedes compartir el vehículo."
+        );
+
+    }
+
+
+    if (carne >= 4) {
+
+        recomendaciones.push(
+            "Reduce progresivamente el consumo de carne de res y alterna con otras fuentes de proteína."
+        );
+
+    }
+
+
+    if (local >= 4) {
+
+        recomendaciones.push(
+            "Prefiere alimentos locales y de temporada para apoyar sistemas de producción y consumo más sostenibles."
+        );
+
+    }
+
+
+    if (energia >= 4) {
+
+        recomendaciones.push(
+            "Apaga luces y equipos que no estés utilizando y desconecta los aparatos cuando sea posible."
+        );
+
+    }
+
+
+    if (residuos >= 4) {
+
+        recomendaciones.push(
+            "Separa correctamente los residuos desde el lugar donde se generan y aprovecha los materiales reciclables."
+        );
+
+    }
+
+
+    if (consumo >= 4) {
+
+        recomendaciones.push(
+            "Antes de comprar, pregúntate si realmente necesitas el producto. Prioriza reparar, reutilizar y comprar productos durables."
+        );
+
+    }
+
+
+    if (agua >= 4) {
+
+        recomendaciones.push(
+            "Reduce el tiempo de ducha, evita desperdicios y revisa periódicamente posibles fugas."
+        );
+
+    }
+
+
+    if (recomendaciones.length === 0) {
+
+        recomendaciones.push(
+            "¡Excelente! Mantén tus hábitos sostenibles y compártelos con otras personas."
+        );
+
+    }
+
+
+    listaRecomendaciones.innerHTML = "";
+
+
+    recomendaciones.forEach(function(texto) {
+
+        const elemento =
+            document.createElement("li");
+
+        elemento.textContent =
+            texto;
+
+        listaRecomendaciones.appendChild(elemento);
+
+    });
+
+
+    /* MOSTRAR RESULTADO */
+
+    resultado.style.display = "block";
+
+
+    resultado.scrollIntoView({
+        behavior: "smooth"
+    });
+
+});
+
+
+/* BOTÓN REINICIAR */
+
+document
+    .getElementById("reiniciar")
+    .addEventListener("click", function() {
+
+        formulario.reset();
+
+        resultado.style.display = "none";
+
+        barraResultado.style.width = "0%";
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+
+    });
+
+</script>
+
+</body>
+</html>
